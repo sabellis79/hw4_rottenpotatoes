@@ -1,5 +1,19 @@
 class MoviesController < ApplicationController
 
+  def director
+    id = params[:id]
+    @movie = Movie.find(id)
+    
+    if @movie
+        if @movie.director == nil or @movie.director == ""
+          session[:noDirector] = @movie.title
+          redirect_to movies_path and return
+        else
+          @movies = Movie.find_all_by_director(@movie.director)          
+        end
+    end
+  end
+
   def show
     id = params[:id] # retrieve movie ID from URI route
     @movie = Movie.find(id) # look up movie by unique ID
@@ -33,6 +47,9 @@ class MoviesController < ApplicationController
       flash.keep
       redirect_to :sort => sort, :ratings => @selected_ratings and return
     end
+	
+    @noDirector = session[:noDirector]
+    session[:noDirector] = nil
     @movies = Movie.find_all_by_rating(@selected_ratings.keys, ordering)
   end
 
